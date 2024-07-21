@@ -1,9 +1,12 @@
+import json
 from tkinter import IntVar, BooleanVar
 import tkinter.ttk as ttk
 import ttkbootstrap as ttk_bs # Современная надстройка над ttk и tkinter
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
+import os
+from const import FILE_NAME_BL_LST_LOT, FILE_NAME_BL_LST_CAT
 
 class AuCard():
 
@@ -24,6 +27,7 @@ class AuCard():
         self.cat_bl_list_flag = BooleanVar(value=False)
         self.lot_bl_list_flag = IntVar(value=0)
 
+
         # ПАНЕЛЬ С РАМКОЙ ДЛЯ ЛОТА
         self.card_frame = ttk_bs.LabelFrame(parent_frame, text=f"№{id(self)}", bootstyle="primary")
 
@@ -36,6 +40,7 @@ class AuCard():
                                        font=('Arial', '18', 'bold'),)
         self.card_title.grid(row=0, column=0, columnspan=2, sticky="ew", padx=25)
         ToolTip(self.card_title, self.lot_name, bootstyle="info-inverse")
+        self.card_title.bind("<1>", self.name_click)
 
 
         # ГАЛКА "ДОБАВИТЬ В ИСКЛЮЧЕНИЯ (КАРТОЧКА)"
@@ -51,7 +56,8 @@ class AuCard():
                                              # style="TCheckbutton-mini",
 
                                              )
-        self.exception_check_box.grid(row=0, column=3, columnspan=1, padx=25, pady=5, sticky="e")
+        self.exception_check_box.grid(row=0, column=2, columnspan=1, padx=25, pady=5, sticky="e")
+        self.exception_check_box.bind("<1>", self.exc_lot_click)
         # self.exception_check_box.invoke()
         # self.exception_check_box.invoke()
 
@@ -99,7 +105,7 @@ class AuCard():
         self.price_frame.grid(row=0, column=0, columnspan=1, sticky="w")
         self.card_price = ttk_bs.Label(self.price_frame,
                                        text=self.lot_price,
-                                       width=10,
+                                       width=15,
                                        anchor="center",
                                        bootstyle="success",
                                        font=('Arial', '14', 'bold')
@@ -111,7 +117,7 @@ class AuCard():
         self.blits_frame.grid(row=0, column=1, columnspan=1, sticky="w")
         self.card_blits = ttk_bs.Label(self.blits_frame,
                                        text=self.lot_blits,
-                                       width=10,
+                                       width=15,
                                        anchor="center",
                                        bootstyle="warning",
                                        font=('Arial', '14', 'bold')
@@ -131,6 +137,7 @@ class AuCard():
 
                                        )
         self.card_place.pack(expand=True)
+        ToolTip(self.card_place, self.lot_place, bootstyle="info-inverse")
 
 
         # КАТЕГОРИЯ
@@ -146,7 +153,7 @@ class AuCard():
         self.time_frame.grid(row=2, column=0, columnspan=1, sticky="w")
         self.card_time = ttk_bs.Label(self.time_frame,
                                        text=self.lot_time,
-                                       width=10,
+                                       width=15,
                                        anchor="center",
                                        bootstyle="primary",
                                        font=('Arial', '14', 'bold'))
@@ -160,19 +167,86 @@ class AuCard():
                                                           variable=self.cat_bl_list_flag,
                                                           compound="left",
                                                           width=45,
-                                                          offvalue=0,
-                                                          onvalue=1,
+                                                          offvalue=False,
+                                                          onvalue=True,
                                                           padding=5,
                                                           bootstyle="danger-square-toggle"
                                                           )
         self.cat_exception_check_box.pack()
         self.cat_exception_check_box.invoke()
         self.cat_exception_check_box.invoke()
+        self.cat_exception_check_box.bind("<1>", self.exc_cat_click)
         ###
 
 
 
         self.card_frame.pack(fill="x", pady=5, padx=20) # РАЗМЕЩЕНИЕ ПАНЕЛИ ДЛЯ ЛОТА
+
+    def name_click(self, event):
+        os.system('start ' + self.lot_link)
+
+    def add_cat_black_list_to_JSON(self):
+        if os.path.exists(FILE_NAME_BL_LST_CAT):
+            with open(FILE_NAME_BL_LST_CAT, "r") as f:
+                data = json.load(f)
+            data.append(self.lot_category)
+            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+                json.dump(data, f)
+            print("Категория добавлена в чёрный лист")
+        else:
+            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+                json.dump([self.lot_category], f)
+            print("Создан чёрный лист категорий")
+
+    def del_cat_from_black_list_JSON(self):
+        if os.path.exists(FILE_NAME_BL_LST_CAT):
+            with open(FILE_NAME_BL_LST_CAT, "r") as f:
+                data = json.load(f)
+            data.remove(self.lot_category)
+            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+                json.dump(data, f)
+            print("Отмена добавления категории в чёрный лист")
+
+    def add_lot_black_list_to_JSON(self):
+        if os.path.exists(FILE_NAME_BL_LST_LOT):
+            with open(FILE_NAME_BL_LST_LOT, "r") as f:
+                data = json.load(f)
+            data.append(self.lot_link)
+            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+                json.dump(data, f)
+            print("Лот добавлен в чёрный лист")
+        else:
+            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+                json.dump([self.lot_link], f)
+            print("Создан чёрный лист лотов")
+
+    def del_lot_from_black_list_JSON(self):
+        if os.path.exists(FILE_NAME_BL_LST_LOT):
+            with open(FILE_NAME_BL_LST_LOT, "r") as f:
+                data = json.load(f)
+            data.remove(self.lot_link)
+            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+                json.dump(data, f)
+            print("Отмена добавления лота в чёрный лист")
+
+
+    def exc_lot_click(self, event):
+        if self.lot_bl_list_flag.get() == 0:
+            self.add_lot_black_list_to_JSON()
+            txt = "Lot OFF"
+        else:
+            self.del_lot_from_black_list_JSON()
+            txt = "Lot ON"
+        print(txt, self.lot_link)
+
+    def exc_cat_click(self, event):
+        if self.cat_bl_list_flag.get():
+            self.del_cat_from_black_list_JSON()
+            txt = "Cat ON"
+        else:
+            self.add_cat_black_list_to_JSON()
+            txt = "Cat OFF"
+        print(txt, self.lot_category)
 
 class AuBrowser(ttk_bs.Window):
 

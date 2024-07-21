@@ -89,6 +89,12 @@ class AUNet():
             except Exception as msg:
                 print("[PHOTOS]", msg)
 
+            # ID КАТЕГОРИИ
+            pass
+
+            # ID лота
+            pass
+
             all_cards.append(card_dict)
 
         return all_cards
