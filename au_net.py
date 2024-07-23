@@ -88,13 +88,36 @@ class AUNet():
                 card_dict["photos"] = links_photos
             except Exception as msg:
                 print("[PHOTOS]", msg)
+            # КОЛИЧЕСТВО КОММЕНТАРИЕВ
+            try:
+                card_dict["comment_count"] = i.find("span", class_="au-actions-count__value").text
+            except Exception as msg:
+                print("[COMMENT_COUNT]", msg)
+
+            # ПОЛУЧАЕМ СЛОВАРЬ С ДАННЫМИ
+            try:
+                data_div = i.find("div", class_="au-lot-list-card")
+                data_dict_str = data_div.get("data-lamber-object")
+                # card_dict["data_dict"] = data_dict
+            except Exception as msg:
+                print("[DATA_DICT]", msg)
+                continue
+
+            data_dict_str = data_dict_str.replace("false", "False") # замена в полученной строке false на False
+            data_dict = eval(data_dict_str) # преобразуем строку в словарь
 
             # ID КАТЕГОРИИ
-            pass
+            card_dict["cat_id"] = data_dict["itemCategoryId"]
 
             # ID лота
-            pass
+            card_dict["lot_id"] = data_dict["item"]
+
+            # НОМЕР КАРТОЧКИ НА СТРАНИЦЕ
+            card_dict["position"] = data_dict["position"]
 
             all_cards.append(card_dict)
 
         return all_cards
+
+if __name__ == "__main__":
+    print(AUNet.load_au_page())

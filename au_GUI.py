@@ -12,6 +12,10 @@ class AuCard():
 
     def __init__(self, parent_frame, page_data):
 
+        self.lot_comment_count = page_data["comment_count"]
+        self.cat_id = page_data["cat_id"]
+        self.lot_id = page_data["lot_id"]
+        self.lot_position = page_data["position"]
         self.lot_name = page_data["name"]
         self.lot_link = page_data["link"]
         self.lot_time = page_data["time"]
@@ -29,7 +33,8 @@ class AuCard():
 
 
         # ПАНЕЛЬ С РАМКОЙ ДЛЯ ЛОТА
-        self.card_frame = ttk_bs.LabelFrame(parent_frame, text=f"№{id(self)}", bootstyle="primary")
+        name_text = f" №{self.lot_position} / Лот ID: {self.lot_id} "
+        self.card_frame = ttk_bs.LabelFrame(parent_frame, text=name_text, bootstyle="primary")
 
         # НАЗВАНИЕ ЛОТА
         self.card_title = ttk_bs.Label(self.card_frame,
@@ -144,9 +149,11 @@ class AuCard():
         self.category_frame = ttk_bs.LabelFrame(self.description_frame, text=" Категория ")
         self.category_frame.grid(row=1, column=0, columnspan=10, pady=5, )
         self.card_category = ttk_bs.Label(self.category_frame,
-                                       text=self.lot_category,
-                                       bootstyle="danger-secondary")
+                                          width=89,
+                                          text=self.lot_category,
+                                          bootstyle="danger-secondary")
         self.card_category.pack()
+        ToolTip(self.card_category, self.lot_category, bootstyle="info-inverse")
 
         # ВРЕМЯ
         self.time_frame = ttk_bs.LabelFrame(self.description_frame, text=" До конца торгов ")
@@ -189,20 +196,24 @@ class AuCard():
         if os.path.exists(FILE_NAME_BL_LST_CAT):
             with open(FILE_NAME_BL_LST_CAT, "r") as f:
                 data = json.load(f)
-            data.append(self.lot_category)
+            # data.append({str(self.cat_id):self.lot_category})
+            data[str(self.cat_id)] = self.lot_category
             with open(FILE_NAME_BL_LST_CAT, "w") as f:
                 json.dump(data, f)
             print("Категория добавлена в чёрный лист")
         else:
             with open(FILE_NAME_BL_LST_CAT, "w") as f:
-                json.dump([self.lot_category], f)
+                # json.dump([{str(self.cat_id):self.lot_category}], f)
+                json.dump({str(self.cat_id): self.lot_category}, f)
             print("Создан чёрный лист категорий")
 
     def del_cat_from_black_list_JSON(self):
         if os.path.exists(FILE_NAME_BL_LST_CAT):
             with open(FILE_NAME_BL_LST_CAT, "r") as f:
                 data = json.load(f)
-            data.remove(self.lot_category)
+            # index = data.index({str(self.cat_id):self.lot_category})
+            # data.pop(index)
+            data.pop(str(self.cat_id))
             with open(FILE_NAME_BL_LST_CAT, "w") as f:
                 json.dump(data, f)
             print("Отмена добавления категории в чёрный лист")
@@ -211,20 +222,23 @@ class AuCard():
         if os.path.exists(FILE_NAME_BL_LST_LOT):
             with open(FILE_NAME_BL_LST_LOT, "r") as f:
                 data = json.load(f)
-            data.append(self.lot_link)
+            # data.append(self.lot_link)
+            data[str(self.lot_id)] = self.lot_name
             with open(FILE_NAME_BL_LST_LOT, "w") as f:
                 json.dump(data, f)
             print("Лот добавлен в чёрный лист")
         else:
             with open(FILE_NAME_BL_LST_LOT, "w") as f:
-                json.dump([self.lot_link], f)
+                # json.dump([self.lot_link], f)
+                json.dump({str(self.lot_id): self.lot_name}, f)
             print("Создан чёрный лист лотов")
 
     def del_lot_from_black_list_JSON(self):
         if os.path.exists(FILE_NAME_BL_LST_LOT):
             with open(FILE_NAME_BL_LST_LOT, "r") as f:
                 data = json.load(f)
-            data.remove(self.lot_link)
+            # data.remove(self.lot_link)
+            data.pop(str(self.lot_id))
             with open(FILE_NAME_BL_LST_LOT, "w") as f:
                 json.dump(data, f)
             print("Отмена добавления лота в чёрный лист")
