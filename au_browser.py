@@ -1,67 +1,60 @@
 from au_net import AUNet
-from au_GUI import AuCard, AuBrowser
+from au_GUI import AuCard, AuBrowser, os, json
 from PIL import Image, ImageTk
+from const import *
 
 
 class AUApp(AuCard, AuBrowser, AUNet):
 
     def __init__(self):
-        # def load_images(links:list) -> list:
-        #     global list_of_image_obj
-        #     list_of_image_obj = []
-        #     for i in links:
-        #         with Image.open(f"pic1.png") as img:
-        #             new_img = img.resize((150, 120))
-        #             rez_img = ImageTk.PhotoImage(new_img)
-        #         list_of_image_obj.append(rez_img)
-        #     return list_of_image_obj
 
+        # ПОДГРУЖАЕМ ЧЁРНЫЙ ЛИСТ ЛОТОВ
+        path_lot_BL = os.path.join(CONFIG_FOLDER, FILE_NAME_BL_LST_LOT)
+        if os.path.exists(path_lot_BL):
+            with open(path_lot_BL, "r") as f:
+                self.app_bl_list_lots = json.load(f)
+
+        # ПОДГРУЖАЕМ ЧЁРНЫЙ ЛИСТ КАТЕГОРИЙ
+        path_cat_BL = os.path.join(CONFIG_FOLDER, FILE_NAME_BL_LST_CAT)
+        if os.path.exists(path_cat_BL):
+            with open(path_cat_BL, "r") as f:
+                self.app_bl_list_cats = json.load(f)
+
+        # СОЗДАЁМ ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ
         self.app = AuBrowser(title="AU Browser")  # themename="morph"
-        # add_card_widgets(app)
-        # pictures = []
-        # for i in range(1, 7):
-        #     with Image.open(f"pic{i}.png") as img:
-        #         new_img = img.resize((150, 120))
-        #         rez_img = ImageTk.PhotoImage(new_img)
-        #     pictures.append(rez_img)
-        # card1 = AuCard(app.bottom_frame, pictures[0])
-        # card2 = AuCard(app.bottom_frame, pictures[1])
-        # card3 = AuCard(app.bottom_frame, pictures[2])
-        # card4 = AuCard(app.bottom_frame, pictures[3])
-        # card5 = AuCard(app.bottom_frame, pictures[4])
-        # card6 = AuCard(app.bottom_frame, pictures[5])
 
-        self.page_data = self.get_page_data(self.app.current_page)
+        # ПОЛУЧАЕМ ПЕРВУЮ СТРАНИЦУ
+        self.page_data = self.load_au_page(self.app.current_page)
 
+        # РАЗМЕЩАЕМ ЛОТЫ НА ОКНЕ ПРИЛОЖЕНИЯ
         for lot in self.page_data:
             # obj_photos_list = load_images(i["photos"])
 
+            # ФИЛЬТР ПО КАТЕГОРИИ
+            if str(lot["cat_id"]) in self.app_bl_list_cats:
+                print("[CAT EXCEPTION]", f"({lot['position']})", lot["name"])
+                continue
 
+            # ФИЛЬТР ПО ЛОТУ
+            if str(lot["lot_id"]) in self.app_bl_list_lots:
+                print("[LOT EXCEPTION]", f"({lot['position']})", lot["name"])
+                continue
+
+            # ПОДГОТОВКА ФОТОГРАФИЙ
             self.list_of_image_obj = []
             for photo in lot["photos"]:
                 with Image.open(f"pic1.png") as img:
                     new_img = img.resize((150, 120))
                     rez_img = ImageTk.PhotoImage(new_img)
                 self.list_of_image_obj.append(rez_img)
-
             self.rez_page_data = lot.copy()
             self.rez_page_data.pop("photos")
             self.rez_page_data["photos_obj"] = self.list_of_image_obj
+
+            # РАЗМЕЩЕНИЕ ЛОТА
             AuCard(self.app.bottom_frame, self.rez_page_data)
 
         self.app.mainloop()
-
-    def get_page_data(self, page_num: int):
-
-        # all_cards = load_au_page(page=page_num)
-        #
-        # for i in all_cards:
-        #     print(i)
-        #
-        # print(len(all_cards))
-        return self.load_au_page(page=page_num)
-
-
 
 
 def main():

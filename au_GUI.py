@@ -6,7 +6,7 @@ from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
 import os
-from const import FILE_NAME_BL_LST_LOT, FILE_NAME_BL_LST_CAT
+from const import *
 
 class AuCard():
 
@@ -78,17 +78,6 @@ class AuCard():
         self.arrow_back_button.grid(row=1, column=0, columnspan=1, rowspan=3, sticky="ns")
 
         # РАЗМЕЩЕНИЕ ФОТОГРАФИИ
-        # img = Image.open("pic.png")
-        # new_img = img.resize((150, 120))
-        # rez_img = ImageTk.PhotoImage(new_img)
-        # img.close()
-
-        # with Image.open(self.lot_photos[0]) as img:
-        #     new_img = img.resize((150, 120))
-        #     rez_img = ImageTk.PhotoImage(new_img)
-
-        # print(img)
-
         self.image_label = ttk_bs.Label(self.image_area_frame,
                                         background="black",
                                         image=self.lot_photos[0],
@@ -132,7 +121,7 @@ class AuCard():
         # МЕСТОРАСПОЛОЖЕНИЕ
         self.place_frame = ttk_bs.LabelFrame(self.description_frame, text=" Расположение ")
         self.place_frame.grid(row=0, column=2, columnspan=1, sticky="n")
-        ttk_bs.Label(self.place_frame, text=" ", font=('Arial', '14', 'bold')).pack(side="right")
+        ttk_bs.Label(self.place_frame, text=" ", font=('Arial', '14', 'bold')).pack(side="right") # ЗАГЛУШКА ДЛЯ ВЫРАВНИВАНИЯ ВЫСОТЫ
 
         self.card_place = ttk_bs.Label(self.place_frame,
                                        text=self.lot_place,
