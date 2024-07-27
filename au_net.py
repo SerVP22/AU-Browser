@@ -1,3 +1,5 @@
+import os.path
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -118,6 +120,35 @@ class AUNet():
             all_cards.append(card_dict)
 
         return all_cards
+
+    def load_photo(self, lot_id, name, path, url):
+
+        def save_photo():
+            dir_path = os.path.join(path, lot_id)
+            full_path = os.path.join(dir_path, name)
+            if not os.path.exists(dir_path):
+                os.mkdir(dir_path)
+            with open(f"{full_path}", "wb+") as f:
+                f.write(response.content)
+            return full_path
+
+        headers = {
+            'Accept': '*/*',
+            'Accept-Language': 'ru,en;q=0.9',
+            'Connection': 'keep-alive',
+            'DNT': '1',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'cross-site',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 YaBrowser/24.4.0.0 Safari/537.36',
+            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "YaBrowser";v="24.4", "Yowser";v="2.5"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+        }
+
+        response = requests.get(url, headers=headers)
+        if response:
+            return save_photo()
 
 if __name__ == "__main__":
     print(AUNet.load_au_page())

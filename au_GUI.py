@@ -10,7 +10,7 @@ from const import *
 
 class AuCard():
 
-    def __init__(self, parent_frame, page_data):
+    def __init__(self, parent_frame, page_data, path_cat_BL, path_lot_BL):
 
         self.lot_comment_count = page_data["comment_count"]
         self.cat_id = page_data["cat_id"]
@@ -30,7 +30,8 @@ class AuCard():
 
         self.cat_bl_list_flag = BooleanVar(value=False)
         self.lot_bl_list_flag = IntVar(value=0)
-
+        self.path_cat_BL = path_cat_BL
+        self.path_lot_BL = path_lot_BL
 
         # ПАНЕЛЬ С РАМКОЙ ДЛЯ ЛОТА
         name_text = f" №{self.lot_position} / Лот ID: {self.lot_id} "
@@ -182,53 +183,53 @@ class AuCard():
         os.system('start ' + self.lot_link)
 
     def add_cat_black_list_to_JSON(self):
-        if os.path.exists(FILE_NAME_BL_LST_CAT):
-            with open(FILE_NAME_BL_LST_CAT, "r") as f:
+        if os.path.exists(self.path_cat_BL):
+            with open(self.path_cat_BL, "r") as f:
                 data = json.load(f)
             # data.append({str(self.cat_id):self.lot_category})
             data[str(self.cat_id)] = self.lot_category
-            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+            with open(self.path_cat_BL, "w") as f:
                 json.dump(data, f)
             print("Категория добавлена в чёрный лист")
         else:
-            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+            with open(self.path_cat_BL, "w") as f:
                 # json.dump([{str(self.cat_id):self.lot_category}], f)
                 json.dump({str(self.cat_id): self.lot_category}, f)
             print("Создан чёрный лист категорий")
 
     def del_cat_from_black_list_JSON(self):
-        if os.path.exists(FILE_NAME_BL_LST_CAT):
-            with open(FILE_NAME_BL_LST_CAT, "r") as f:
+        if os.path.exists(self.path_cat_BL):
+            with open(self.path_cat_BL, "r") as f:
                 data = json.load(f)
             # index = data.index({str(self.cat_id):self.lot_category})
             # data.pop(index)
             data.pop(str(self.cat_id))
-            with open(FILE_NAME_BL_LST_CAT, "w") as f:
+            with open(self.path_cat_BL, "w") as f:
                 json.dump(data, f)
             print("Отмена добавления категории в чёрный лист")
 
     def add_lot_black_list_to_JSON(self):
-        if os.path.exists(FILE_NAME_BL_LST_LOT):
-            with open(FILE_NAME_BL_LST_LOT, "r") as f:
+        if os.path.exists(self.path_lot_BL):
+            with open(self.path_lot_BL, "r") as f:
                 data = json.load(f)
             # data.append(self.lot_link)
             data[str(self.lot_id)] = self.lot_name
-            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+            with open(self.path_lot_BL, "w") as f:
                 json.dump(data, f)
             print("Лот добавлен в чёрный лист")
         else:
-            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+            with open(self.path_lot_BL, "w") as f:
                 # json.dump([self.lot_link], f)
                 json.dump({str(self.lot_id): self.lot_name}, f)
             print("Создан чёрный лист лотов")
 
     def del_lot_from_black_list_JSON(self):
-        if os.path.exists(FILE_NAME_BL_LST_LOT):
-            with open(FILE_NAME_BL_LST_LOT, "r") as f:
+        if os.path.exists(self.path_lot_BL):
+            with open(self.path_lot_BL, "r") as f:
                 data = json.load(f)
             # data.remove(self.lot_link)
             data.pop(str(self.lot_id))
-            with open(FILE_NAME_BL_LST_LOT, "w") as f:
+            with open(self.path_lot_BL, "w") as f:
                 json.dump(data, f)
             print("Отмена добавления лота в чёрный лист")
 
