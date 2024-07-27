@@ -179,6 +179,8 @@ class AuCard():
 
         self.card_frame.pack(fill="x", pady=5, padx=20) # РАЗМЕЩЕНИЕ ПАНЕЛИ ДЛЯ ЛОТА
 
+
+
     def name_click(self, event):
         os.system('start ' + self.lot_link)
 
@@ -255,14 +257,14 @@ class AuCard():
 class AuBrowser(ttk_bs.Window):
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, def_start_app, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.current_page = 1
         self.geometry("1000x800")
         self.main_black_list_flag = IntVar()
-
+        self.reload_app = def_start_app
 
 
         self.style1 = ttk.Style()
@@ -275,18 +277,17 @@ class AuBrowser(ttk_bs.Window):
 
 
         self.build_top_frame()
-        self.build_bottom_frame()
+        self.bottom_frame = self.build_bottom_frame()
 
 
-        # toast = ToastNotification(
-        #     title="ttkbootstrap toast message",
-        #     message="This is a toast message",
-        #     duration=10000,
-        # )
-        # toast.show_toast()
-
+    def reload_btn_press(self):
+        for child in self.bottom_frame.winfo_children():
+            child.destroy()
+        # self.bottom_frame.update()
+        self.reload_app()
 
     def build_top_frame(self):
+
         self.top_frame = ttk_bs.Frame(self, padding=15, bootstyle=DARK)
         self.top_frame.pack(fill=X)
 
@@ -306,7 +307,11 @@ class AuBrowser(ttk_bs.Window):
         self.btn_forward = ttk_bs.Button(self.top_frame, text="Вперёд", bootstyle=SUCCESS, width=15)
         self.btn_forward.pack(side=LEFT, pady=5, padx=5)
 
-        self.btn_update = ttk_bs.Button(self.top_frame, text="Обновить страницу", bootstyle=WARNING, width=25)
+        self.btn_update = ttk_bs.Button(self.top_frame,
+                                        text="Обновить страницу",
+                                        bootstyle=WARNING,
+                                        command=self.reload_btn_press,
+                                        width=25)
         self.btn_update.pack(side=LEFT, pady=5, padx=25)
 
         self.bl_lst_button = ttk.Checkbutton(self.top_frame,
@@ -321,7 +326,9 @@ class AuBrowser(ttk_bs.Window):
         self.bl_lst_button.pack(side="left", expand=1, anchor=E)
         self.bl_lst_button.invoke()
 
+
     def build_bottom_frame(self):
         self.bottom_frame = ScrolledFrame(self)
         self.bottom_frame.pack(expand=True, fill=ttk_bs.BOTH)
+        return self.bottom_frame
         #

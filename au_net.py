@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 class AUNet():
 
-    def load_au_page(self, page:int=1):
+    def load_au_page(page:int=1):
 
         headers = {
             'Accept': '*/*',

@@ -5,9 +5,9 @@ from const import *
 from ttkbootstrap.toast import ToastNotification
 
 
-class AUApp(AuCard, AuBrowser, AUNet):
+class AUApp():
 
-    def __init__(self):
+    def start_app(self):
 
         # ПОДГРУЖАЕМ ЧЁРНЫЙ ЛИСТ ЛОТОВ
         self.path_lot_BL = os.path.join(CONFIG_FOLDER, FILE_NAME_BL_LST_LOT)
@@ -22,10 +22,11 @@ class AUApp(AuCard, AuBrowser, AUNet):
                 self.app_bl_list_cats = json.load(f)
 
         # СОЗДАЁМ ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ
-        self.app = AuBrowser(title="AU Browser")  # themename="morph"
+        if self.first_start:
+            self.app = AuBrowser(self.start_app, title="AU Browser")  # themename="morph"
 
         # ПОЛУЧАЕМ ПЕРВУЮ СТРАНИЦУ
-        self.page_data = self.load_au_page(page=self.app.current_page)
+        self.page_data = AUNet.load_au_page(page=self.app.current_page)
 
         message_text = ""
 
@@ -56,7 +57,7 @@ class AUApp(AuCard, AuBrowser, AUNet):
                                               lot_id=str(lot["lot_id"]),
                                               name=str(lot["lot_id"]) + f"_{count}.jpg",
                                               url=photo
-                                             )
+                                              )
                 count += 1
                 if not photo_path:
                     photo_path = os.path.join(CONFIG_FOLDER, NO_PHOTO_PIC)
@@ -75,13 +76,19 @@ class AUApp(AuCard, AuBrowser, AUNet):
                    self.path_cat_BL,
                    self.path_lot_BL)
 
-        toast = ToastNotification(
-            title="AU Browser. Некоторые лоты не отобразились",
-            message=message_text,
-            duration=None,
-        )
-        toast.show_toast()
+        if len(message_text) > 0:
+            toast = ToastNotification(
+                title="AU Browser. Некоторые лоты не отобразились",
+                message=message_text,
+                duration=None,
+            )
+            toast.show_toast()
 
+    def __init__(self):
+
+        self.first_start = True
+        self.start_app()
+        self.first_start = False
         self.app.mainloop()
 
 
