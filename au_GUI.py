@@ -179,8 +179,6 @@ class AuCard():
 
         self.card_frame.pack(fill="x", pady=5, padx=20) # РАЗМЕЩЕНИЕ ПАНЕЛИ ДЛЯ ЛОТА
 
-
-
     def name_click(self, event):
         os.system('start ' + self.lot_link)
 
@@ -235,7 +233,6 @@ class AuCard():
                 json.dump(data, f)
             print("Отмена добавления лота в чёрный лист")
 
-
     def exc_lot_click(self, event):
         if self.lot_bl_list_flag.get() == 0:
             self.add_lot_black_list_to_JSON()
@@ -257,14 +254,15 @@ class AuCard():
 class AuBrowser(ttk_bs.Window):
 
 
-    def __init__(self, def_start_app, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.current_page = 1
         self.geometry("1000x800")
         self.main_black_list_flag = IntVar()
-        self.reload_app = def_start_app
+        self.reload_app = app.start_app
+        self.app = app
 
 
         self.style1 = ttk.Style()
@@ -279,19 +277,37 @@ class AuBrowser(ttk_bs.Window):
         self.build_top_frame()
         self.bottom_frame = self.build_bottom_frame()
 
-
-    def reload_btn_press(self):
+    def clear_frame(self):
         for child in self.bottom_frame.winfo_children():
             child.destroy()
-        # self.bottom_frame.update()
+
+    def reload_btn_press(self):
+        self.clear_frame()
         self.reload_app()
+
+    def forward_btn_press(self):
+        self.current_page += 1
+        self.page_label.configure(text=self.current_page)
+        self.clear_frame()
+        self.reload_app()
+
+    def back_btn_press(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.page_label.configure(text=self.current_page)
+            self.clear_frame()
+            self.reload_app()
 
     def build_top_frame(self):
 
         self.top_frame = ttk_bs.Frame(self, padding=15, bootstyle=DARK)
         self.top_frame.pack(fill=X)
 
-        self.btn_back = ttk_bs.Button(self.top_frame, text="Назад", bootstyle=INFO, width=15)
+        self.btn_back = ttk_bs.Button(self.top_frame,
+                                      text="Назад",
+                                      command=self.back_btn_press,
+                                      bootstyle=INFO,
+                                      width=15)
         self.btn_back.pack(side=LEFT, pady=5, padx=5)
 
         self.page_label = ttk_bs.Label(self.top_frame,
@@ -304,7 +320,11 @@ class AuBrowser(ttk_bs.Window):
                                        )
         self.page_label.pack(side=LEFT, pady=5, padx=5)
 
-        self.btn_forward = ttk_bs.Button(self.top_frame, text="Вперёд", bootstyle=SUCCESS, width=15)
+        self.btn_forward = ttk_bs.Button(self.top_frame,
+                                         text="Вперёд",
+                                         command=self.forward_btn_press,
+                                         bootstyle=SUCCESS,
+                                         width=15)
         self.btn_forward.pack(side=LEFT, pady=5, padx=5)
 
         self.btn_update = ttk_bs.Button(self.top_frame,
@@ -325,7 +345,6 @@ class AuBrowser(ttk_bs.Window):
 
         self.bl_lst_button.pack(side="left", expand=1, anchor=E)
         self.bl_lst_button.invoke()
-
 
     def build_bottom_frame(self):
         self.bottom_frame = ScrolledFrame(self)

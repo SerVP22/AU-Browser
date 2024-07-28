@@ -23,7 +23,7 @@ class AUApp():
 
         # СОЗДАЁМ ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ
         if self.first_start:
-            self.app = AuBrowser(self.start_app, title="AU Browser")  # themename="morph"
+            self.app = AuBrowser(app=self, title="AU Browser")  # themename="morph"
 
         # ПОЛУЧАЕМ ПЕРВУЮ СТРАНИЦУ
         self.page_data = AUNet.load_au_page(page=self.app.current_page)
