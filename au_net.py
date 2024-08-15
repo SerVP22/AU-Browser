@@ -26,6 +26,11 @@ class AUNet():
         response = requests.get(f'https://1.au.ru/?sort=date&landmark=2&page={page}', headers=headers)
         send = BeautifulSoup(response.text, "lxml")
         data = send.find_all("div", class_="au-card-list-item")
+        win_count_tag = send.find("span", class_="au-notify-badge au-notify-badge_type_new")
+        if win_count_tag:
+            print(win_count_tag.text)
+        else:
+            print("No info")
 
         for i in data:
             card_dict = {}
@@ -106,6 +111,7 @@ class AUNet():
                 continue
 
             data_dict_str = data_dict_str.replace("false", "False") # замена в полученной строке false на False
+            data_dict_str = data_dict_str.replace("true", "True")
             data_dict = eval(data_dict_str) # преобразуем строку в словарь
 
             # ID КАТЕГОРИИ
@@ -146,9 +152,12 @@ class AUNet():
             'sec-ch-ua-platform': '"Windows"',
         }
 
-        response = requests.get(url, headers=headers)
-        if response:
-            return save_photo()
+        try:
+            response = requests.get(url, headers=headers)
+            if response:
+                return save_photo()
+        except Exception as msg:
+            print("[LOAD PHOTO ERROR:]", msg)
 
 if __name__ == "__main__":
     print(AUNet.load_au_page())

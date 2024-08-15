@@ -1,5 +1,7 @@
 FILE_NAME_BL_LST_LOT = "bllstlot.json"
 FILE_NAME_BL_LST_CAT = "bllstcat.json"
+FILE_CNF = "conf.json"
+MAIN_CHECK_BUTTON_KEY = "Main checkbutton value"
 FOLDER_LOT_PHOTOS = "DATA"
 CONFIG_FOLDER = "CONF"
 NO_PHOTO_PIC = "nophoto.png"

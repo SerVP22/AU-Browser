@@ -20,6 +20,8 @@ class AuCard():
         self.lot_link = page_data["link"]
         self.lot_time = page_data["time"]
         self.lot_photos = page_data["photos_obj"]
+        self.photos_count = len(self.lot_photos)
+        self.current_photo = 0
         self.lot_price = page_data["price"]
         self.lot_place = page_data["place"]
         self.lot_category = page_data["category"]
@@ -34,7 +36,7 @@ class AuCard():
         self.path_lot_BL = path_lot_BL
 
         # ПАНЕЛЬ С РАМКОЙ ДЛЯ ЛОТА
-        name_text = f" №{self.lot_position} / Лот ID: {self.lot_id} "
+        name_text = f" Позиция на странице: {self.lot_position} / Вопросов: {self.lot_comment_count} / Фотографий: {self.photos_count} "
         self.card_frame = ttk_bs.LabelFrame(parent_frame, text=name_text, bootstyle="primary")
 
         # НАЗВАНИЕ ЛОТА
@@ -60,7 +62,6 @@ class AuCard():
                                              padding=5,
                                              bootstyle="danger-round-toggle",
                                              # style="TCheckbutton-mini",
-
                                              )
         self.exception_check_box.grid(row=0, column=2, columnspan=1, padx=25, pady=5, sticky="e")
         self.exception_check_box.bind("<1>", self.exc_lot_click)
@@ -75,7 +76,10 @@ class AuCard():
         self.image_area_frame.grid(row=1, column=0, columnspan=1, rowspan=3, padx=15, pady=5, sticky="ew")
 
         # КНОПКА НАЗАД
-        self.arrow_back_button = ttk_bs.Button(self.image_area_frame, text="<", bootstyle="dark-outline", )
+        self.arrow_back_button = ttk_bs.Button(self.image_area_frame,
+                                               text="<",
+                                               command=self.back_btn_press,
+                                               bootstyle="dark-outline", )
         self.arrow_back_button.grid(row=1, column=0, columnspan=1, rowspan=3, sticky="ns")
 
         # РАЗМЕЩЕНИЕ ФОТОГРАФИИ
@@ -87,9 +91,12 @@ class AuCard():
         self.image_label.grid(row=1, column=1, columnspan=10, rowspan=3)
 
         # КНОПКА ВПЕРЁД
-        self.arrow_forward_button = ttk_bs.Button(self.image_area_frame, text=">", bootstyle="dark-outline")
+        self.arrow_forward_button = ttk_bs.Button(self.image_area_frame,
+                                                  text=">",
+                                                  command=self.forward_btn_press,
+                                                  bootstyle="dark-outline")
         self.arrow_forward_button.grid(row=1, column=11, columnspan=1, rowspan=3, sticky="ns")
-        ###
+        ### КОНЕЦ ПАНЕЛЬ ИЗОБРАЖЕНИЯ И КНОПОК
 
         ### ПАНЕЛЬ ОПИСАНИЯ
         self.description_frame = ttk_bs.Frame(self.card_frame)
@@ -173,11 +180,28 @@ class AuCard():
         self.cat_exception_check_box.invoke()
         self.cat_exception_check_box.invoke()
         self.cat_exception_check_box.bind("<1>", self.exc_cat_click)
-        ###
-
+        ### КОНЕЦ ПАНЕЛЬ ОПИСАНИЯ
 
 
         self.card_frame.pack(fill="x", pady=5, padx=20) # РАЗМЕЩЕНИЕ ПАНЕЛИ ДЛЯ ЛОТА
+
+    def back_btn_press(self):
+        if self.photos_count > 1:
+            self.current_photo -= 1
+            if self.current_photo != -1:
+                self.image_label.configure(image=self.lot_photos[self.current_photo])
+            else:
+                self.current_photo = self.photos_count - 1
+                self.image_label.configure(image=self.lot_photos[self.current_photo])
+
+    def forward_btn_press(self):
+        if self.photos_count > 1:
+            self.current_photo += 1
+            if self.current_photo != self.photos_count:
+                self.image_label.configure(image=self.lot_photos[self.current_photo])
+            else:
+                self.current_photo = 0
+                self.image_label.configure(image=self.lot_photos[0])
 
     def name_click(self, event):
         os.system('start ' + self.lot_link)
@@ -186,14 +210,12 @@ class AuCard():
         if os.path.exists(self.path_cat_BL):
             with open(self.path_cat_BL, "r") as f:
                 data = json.load(f)
-            # data.append({str(self.cat_id):self.lot_category})
             data[str(self.cat_id)] = self.lot_category
             with open(self.path_cat_BL, "w") as f:
                 json.dump(data, f)
             print("Категория добавлена в чёрный лист")
         else:
             with open(self.path_cat_BL, "w") as f:
-                # json.dump([{str(self.cat_id):self.lot_category}], f)
                 json.dump({str(self.cat_id): self.lot_category}, f)
             print("Создан чёрный лист категорий")
 
@@ -201,8 +223,6 @@ class AuCard():
         if os.path.exists(self.path_cat_BL):
             with open(self.path_cat_BL, "r") as f:
                 data = json.load(f)
-            # index = data.index({str(self.cat_id):self.lot_category})
-            # data.pop(index)
             data.pop(str(self.cat_id))
             with open(self.path_cat_BL, "w") as f:
                 json.dump(data, f)
@@ -212,14 +232,12 @@ class AuCard():
         if os.path.exists(self.path_lot_BL):
             with open(self.path_lot_BL, "r") as f:
                 data = json.load(f)
-            # data.append(self.lot_link)
             data[str(self.lot_id)] = self.lot_name
             with open(self.path_lot_BL, "w") as f:
                 json.dump(data, f)
             print("Лот добавлен в чёрный лист")
         else:
             with open(self.path_lot_BL, "w") as f:
-                # json.dump([self.lot_link], f)
                 json.dump({str(self.lot_id): self.lot_name}, f)
             print("Создан чёрный лист лотов")
 
@@ -227,7 +245,6 @@ class AuCard():
         if os.path.exists(self.path_lot_BL):
             with open(self.path_lot_BL, "r") as f:
                 data = json.load(f)
-            # data.remove(self.lot_link)
             data.pop(str(self.lot_id))
             with open(self.path_lot_BL, "w") as f:
                 json.dump(data, f)
@@ -260,9 +277,11 @@ class AuBrowser(ttk_bs.Window):
 
         self.current_page = 1
         self.geometry("1000x800")
-        self.main_black_list_flag = IntVar()
+        self.main_black_list_flag = IntVar(value=1)
         self.reload_app = app.start_app
         self.app = app
+        self.path_conf = CONFIG_FOLDER
+        self.file_conf_name = FILE_CNF
 
 
         self.style1 = ttk.Style()
@@ -280,6 +299,8 @@ class AuBrowser(ttk_bs.Window):
     def clear_frame(self):
         for child in self.bottom_frame.winfo_children():
             child.destroy()
+        self.bottom_frame.yview_moveto(0)
+
 
     def reload_btn_press(self):
         self.clear_frame()
@@ -338,13 +359,37 @@ class AuBrowser(ttk_bs.Window):
                                              text='Учитывать "Черный лист"',
                                              variable=self.main_black_list_flag,
                                              style="TCheckbutton",
+                                             command=self.check_btn_change,
                                              offvalue=0,
                                              onvalue=1,
                                              padding=5
                                              )
-
         self.bl_lst_button.pack(side="left", expand=1, anchor=E)
-        self.bl_lst_button.invoke()
+        # self.bl_lst_button.invoke()
+
+    def check_btn_change(self):
+
+        def create_new_file_conf():
+            with open(self.full_path_conf, "w") as f:
+                json.dump({MAIN_CHECK_BUTTON_KEY: self.main_black_list_flag.get()}, f)
+            print("Создан файл конфигурации")
+
+        self.full_path_conf = os.path.join(self.path_conf, self.file_conf_name)
+
+        if not os.path.exists(self.path_conf):
+            os.mkdir(self.path_conf)
+            create_new_file_conf()
+
+        if os.path.exists(self.full_path_conf):
+            with open(self.full_path_conf, "r") as f:
+                data = json.load(f)
+            data[MAIN_CHECK_BUTTON_KEY] = self.main_black_list_flag.get()
+            with open(self.full_path_conf, "w") as f:
+                json.dump(data, f)
+            print("Файл конфигурации обновлён")
+        else:
+            create_new_file_conf()
+
 
     def build_bottom_frame(self):
         self.bottom_frame = ScrolledFrame(self)
