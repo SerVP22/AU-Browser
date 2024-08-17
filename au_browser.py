@@ -1,5 +1,5 @@
 from au_net import AUNet
-from au_GUI import AuCard, AuBrowser, os, json
+from au_GUI import AuCard, AuBrowser, os, json, ttk_bs
 from PIL import Image, ImageTk
 from const import *
 from ttkbootstrap.toast import ToastNotification
@@ -36,6 +36,8 @@ class AUApp():
         # )
         # start_toast.show_toast()
 
+        self.app.title("AU Browser [ЗАГРУЗКА...]")
+
         # ПОЛУЧАЕМ ПЕРВУЮ СТРАНИЦУ
         self.page_data = AUNet.load_au_page(page=self.app.current_page)
 
@@ -48,21 +50,22 @@ class AUApp():
             # ФИЛЬТР ПО КАТЕГОРИИ
             if self.app_bl_list_cats and str(lot["cat_id"]) in self.app_bl_list_cats:
                 text = "[CAT EXC]" + f" ({lot['position']}) " + lot["name"]
-                print(text)
+                # print(text)
                 message_text += text + "\n"
                 continue
 
             # ФИЛЬТР ПО ЛОТУ
             if self.app_bl_list_lots and str(lot["lot_id"]) in self.app_bl_list_lots:
                 text = "[LOT EXC]" + f" ({lot['position']}) " + lot["name"]
-                print(text)
+                # print(text)
                 message_text += text + "\n"
                 continue
 
             # ПОДГОТОВКА ФОТОГРАФИЙ
             self.list_of_image_obj = []
+            count = 1
+
             for photo in lot["photos"]:
-                count = 1
                 photo_path = AUNet.load_photo(self,
                                               path=FOLDER_LOT_PHOTOS,
                                               lot_id=str(lot["lot_id"]),
@@ -73,10 +76,20 @@ class AUApp():
                 if not photo_path:
                     photo_path = os.path.join(CONFIG_FOLDER, NO_PHOTO_PIC)
                 with Image.open(photo_path) as img:
-                    new_width = int(150*img.width/img.height)
-                    if new_width>150:
+                    # new_width = int(150*img.width/img.height)
+                    # if new_width>150:
+                    #     new_width = 150
+                    if img.width >= img.height:
                         new_width = 150
-                    new_img = img.resize((new_width, 120))
+                        new_height = int(150 * img.height / img.width)
+                        if (new_width / new_height) > 2:
+                            new_height = 75
+                    else:
+                        new_width = int(120 * img.width / img.height)
+                        new_height = 120
+                        if (new_height / new_width) > 2:
+                            new_width = 60
+                    new_img = img.resize((new_width, new_height))
                     rez_img = ImageTk.PhotoImage(new_img)
 
                 self.list_of_image_obj.append(rez_img)
@@ -90,7 +103,18 @@ class AUApp():
                    self.path_cat_BL,
                    self.path_lot_BL)
 
+        # НИЖНЯЯ КНОПКА "СЛЕДУЮЩАЯ СТРАНИЦА"
+        self.end_frame = ttk_bs.LabelFrame(self.app.bottom_frame, text="Конец списка", bootstyle="primary")
+        self.end_frame.pack(fill="x", pady=5, padx=20)
+        self.next_page_btn = ttk_bs.Button(master=self.end_frame,
+                                     text=" > > > Следующая страница > > >",
+                                     command=self.app.forward_btn_press,
+                                     bootstyle="success-outline")
+        self.next_page_btn.pack(expand=True, fill="both", pady=10, padx=10)
+
         # start_toast.hide_toast()
+
+        self.app.title("AU Browser")
 
         if len(message_text) > 0:
             toast = ToastNotification(
@@ -99,6 +123,9 @@ class AUApp():
                 duration=10000,
             )
             toast.show_toast()
+
+        # self.app.bottom_frame.vscroll.focus_force()
+        self.next_page_btn.focus_force()
 
     def __init__(self):
 

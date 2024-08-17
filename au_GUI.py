@@ -1,4 +1,5 @@
 import json
+import tkinter
 from tkinter import IntVar, BooleanVar
 import tkinter.ttk as ttk
 import ttkbootstrap as ttk_bs # Современная надстройка над ttk и tkinter
@@ -6,6 +7,7 @@ from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
 import os
+import time
 from const import *
 
 class AuCard():
@@ -319,6 +321,58 @@ class AuBrowser(ttk_bs.Window):
             self.clear_frame()
             self.reload_app()
 
+    def return_key_press(self, event):
+        try:
+            self.current_page = int(self.entry.get())
+        except:
+            self.entry.destroy()
+            return
+
+        if not 0 < self.current_page < 1000:
+            self.current_page = 1
+
+        self.page_label.configure(text=self.current_page)
+        self.entry.destroy()
+        self.clear_frame()
+        self.reload_app()
+
+
+
+    def escape_key_press(self, event):
+        self.entry.destroy()
+
+    # def check(self, enter):
+    #     try:
+    #         int(enter)
+    #     except:
+    #         pass
+    #     return True
+
+    # def check(self):
+    #     print(self.entry.get())
+
+    def page_label_button_press(self, event):
+        # print(self.page_label.winfo_x(), self.page_label.winfo_y())
+        # self.last_right_value_entry = str(self.current_page)
+
+        self.entry = ttk_bs.Entry(self.top_frame,
+                                  # validate="key",
+                                  # # validatecommand=(self.register(self.check), "%P")
+                                  # validatecommand=self.check
+                                  font=("Arial", 14, "bold"),
+                                  justify=tkinter.CENTER
+                                  )
+        self.entry.place(x=self.page_label.winfo_x() - 15,
+                         y=self.page_label.winfo_y() - 15,
+                         width=self.page_label.winfo_width(),
+                         height=self.page_label.winfo_height()
+                         )
+        self.entry.focus_set()
+        # ENTER
+        self.entry.bind("<Return>", self.return_key_press)
+        # ESC
+        self.entry.bind("<Escape>", self.escape_key_press)
+
     def build_top_frame(self):
 
         self.top_frame = ttk_bs.Frame(self, padding=15, bootstyle=DARK)
@@ -340,6 +394,8 @@ class AuBrowser(ttk_bs.Window):
                                        font=("Arial", 18, "bold"),
                                        )
         self.page_label.pack(side=LEFT, pady=5, padx=5)
+        self.page_label.bind("<1>", self.page_label_button_press)
+
 
         self.btn_forward = ttk_bs.Button(self.top_frame,
                                          text="Вперёд",

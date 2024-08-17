@@ -130,13 +130,11 @@ class AUNet():
     def load_photo(self, lot_id, name, path, url):
 
         def save_photo():
-            dir_path = os.path.join(path, lot_id)
-            full_path = os.path.join(dir_path, name)
             if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
+                os.makedirs(dir_path)
             with open(f"{full_path}", "wb+") as f:
                 f.write(response.content)
-            return full_path
+
 
         headers = {
             'Accept': '*/*',
@@ -152,12 +150,22 @@ class AUNet():
             'sec-ch-ua-platform': '"Windows"',
         }
 
+        dir_path = os.path.join(path, lot_id)
+        full_path = os.path.join(dir_path, name)
+
+        if os.path.exists(full_path): # файл уже скачан
+            # print("Файл уже скачан: ", full_path)
+            return full_path
+
         try:
             response = requests.get(url, headers=headers)
             if response:
-                return save_photo()
+                save_photo()
+                # print("Загружен файл: ", full_path)
+                return full_path
         except Exception as msg:
             print("[LOAD PHOTO ERROR:]", msg)
+            # print(full_path)
 
 if __name__ == "__main__":
     print(AUNet.load_au_page())
