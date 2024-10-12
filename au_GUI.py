@@ -1,6 +1,6 @@
 import json
 import tkinter
-from tkinter import IntVar, BooleanVar
+from tkinter import IntVar, BooleanVar, PhotoImage
 import tkinter.ttk as ttk
 import ttkbootstrap as ttk_bs # Современная надстройка над ttk и tkinter
 from ttkbootstrap.tooltip import ToolTip
@@ -8,7 +8,9 @@ from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledFrame
 import os
 import time
+from PIL import Image, ImageTk
 from const import *
+from au_net import AUNet
 
 class AuCard():
 
@@ -142,7 +144,7 @@ class AuCard():
                                        )
         self.card_place.pack(expand=True)
         ToolTip(self.card_place, self.lot_place, bootstyle="info-inverse")
-
+        self.card_place.bind("<Button-1>", self.place_press)
 
         # КАТЕГОРИЯ
         self.category_frame = ttk_bs.LabelFrame(self.description_frame, text=" Категория ")
@@ -269,6 +271,37 @@ class AuCard():
             self.add_cat_black_list_to_JSON()
             txt = "Cat OFF"
         print(txt, self.lot_category)
+
+    def place_press(self, event):
+
+        if self.lot_time != "Торги завершены":
+            self.top_win = ttk_bs.Toplevel(title="Месторасположение")
+            self.top_win.grab_set()
+            self.top_win.bind("<Button-1>", lambda event: self.top_win.destroy())
+            self.img = Image.open(AUNet.load_map(self.lot_link))
+            self.rez_img = ImageTk.PhotoImage(self.img)
+            self.img.close()
+
+            w = self.rez_img.width()
+            h = self.rez_img.height()
+            parent_size, parent_x, parent_y = self.top_win.master.geometry().split(sep="+")
+            parent_W, parent_H = parent_size.split(sep="x")
+            center_x = int(parent_x) + int(parent_W) // 2
+            center_y = int(parent_y) + int(parent_H) // 2
+            new_x = center_x - w // 2
+            new_y = center_y - h // 2
+
+            self.top_win.geometry(f"{w}x{h}+{new_x}+{new_y}")
+            # self.top_win.geometry(f"{self.rez_img.width()}x{self.rez_img.height()}")
+            self.canv = ttk_bs.Canvas(master=self.top_win,
+                                      width=self.rez_img.width(),
+                                      height=self.rez_img.height()
+                                      )
+            self.canv.pack(anchor="center", expand=1)
+            self.canv.create_image(0, 0, anchor="nw", image=self.rez_img)
+            self.top_win.resizable(0, 0)
+
+
 
 class AuBrowser(ttk_bs.Window):
 

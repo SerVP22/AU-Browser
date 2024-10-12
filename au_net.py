@@ -1,9 +1,39 @@
 import os.path
 
 import requests
+from io import BytesIO
 from bs4 import BeautifulSoup
 
 class AUNet():
+
+    def load_map(url):
+
+        headers = {
+            'Accept': '*/*',
+            'Accept-Language': 'ru,en;q=0.9',
+            'Connection': 'keep-alive',
+            'DNT': '1',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'cross-site',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 YaBrowser/24.4.0.0 Safari/537.36',
+            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "YaBrowser";v="24.4", "Yowser";v="2.5"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+        }
+
+        all_cards = []
+
+        response = requests.get(url, headers=headers)
+        send = BeautifulSoup(response.text, "lxml")
+        map_div = send.find("div", class_="au-item-page-location-map")
+        link = map_div.get("style").replace("background-image:url(", "")
+        link = link[:-1]
+
+        response = requests.get(link)
+        img_data = response.content
+        return BytesIO(img_data)
+
 
     def load_au_page(page:int=1):
 
@@ -26,11 +56,11 @@ class AUNet():
         response = requests.get(f'https://1.au.ru/?sort=date&landmark=2&page={page}', headers=headers)
         send = BeautifulSoup(response.text, "lxml")
         data = send.find_all("div", class_="au-card-list-item")
-        win_count_tag = send.find("span", class_="au-notify-badge au-notify-badge_type_new")
-        if win_count_tag:
-            print(win_count_tag.text)
-        else:
-            print("No info")
+        # win_count_tag = send.find("span", class_="au-notify-badge au-notify-badge_type_new")
+        # if win_count_tag:
+        #     print(win_count_tag.text)
+        # else:
+        #     print("No info")
 
         for i in data:
             card_dict = {}
