@@ -7,9 +7,24 @@ from ttkbootstrap.toast import ToastNotification
 
 class AUApp():
 
+    def load_and_return_config(self):
+        self.full_path_conf = os.path.join(CONFIG_FOLDER, FILE_CNF)
+
+        if os.path.exists(self.full_path_conf):
+            with open(self.full_path_conf, "r") as f:
+                data = json.load(f)
+            try:
+                return data[SHOW_EXCLUDED_LOTS_KEY], data[EXCLUDE_LOTS_KEY]
+            except Exception as msg:
+                print('[EXC ERROR]:', msg)
+                return False, False  # self.show_excluded_lots, self.exclude_lots
+        else:
+            print("[Ошибка доступа к файлк конфигурации")
+            return False, False #self.show_excluded_lots, self.exclude_lots
+
     def start_app(self):
 
-
+        self.show_excluded_lots, self.exclude_lots = self.load_and_return_config()
 
         self.app_bl_list_cats = self.app_bl_list_lots = None
 
@@ -27,14 +42,7 @@ class AUApp():
 
         # СОЗДАЁМ ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ
         if self.first_start:
-            self.app = AuBrowser(app=self, title="AU Browser")  # themename="morph"
-
-        # start_toast = ToastNotification(
-        #     title="AU Browser",
-        #     message="Идёт загрузка данных",
-        #     duration=None,
-        # )
-        # start_toast.show_toast()
+            self.app = AuBrowser(app=self, title="AU Browser", sh=self.show_excluded_lots, ex=self.exclude_lots)  # themename="morph"
 
         self.app.title("AU Browser [ЗАГРУЗКА...]")
 
@@ -47,19 +55,26 @@ class AUApp():
         for lot in self.page_data:
             # obj_photos_list = load_images(i["photos"])
 
+            # ФИЛЬТР ЗАВЕРШЁННЫХ ЛОТОВ
+            if lot["time"] == "Торги завершены":
+                text = "[END TIME]" + f" ({lot['position']}) " + lot["name"]
+                message_text += text + "\n"
+                continue
+
             # ФИЛЬТР ПО КАТЕГОРИИ
             if self.app_bl_list_cats and str(lot["cat_id"]) in self.app_bl_list_cats:
                 text = "[CAT EXC]" + f" ({lot['position']}) " + lot["name"]
                 # print(text)
                 message_text += text + "\n"
-                continue
-
+                if self.exclude_lots:
+                    continue
             # ФИЛЬТР ПО ЛОТУ
             if self.app_bl_list_lots and str(lot["lot_id"]) in self.app_bl_list_lots:
                 text = "[LOT EXC]" + f" ({lot['position']}) " + lot["name"]
                 # print(text)
                 message_text += text + "\n"
-                continue
+                if self.exclude_lots:
+                    continue
 
             # ПОДГОТОВКА ФОТОГРАФИЙ
             self.list_of_image_obj = []
@@ -116,7 +131,7 @@ class AUApp():
 
         self.app.title("AU Browser")
 
-        if len(message_text) > 0:
+        if len(message_text) > 0 and self.show_excluded_lots and self.exclude_lots: # ОТОБРАЖЕНИЕ ИСКЛЮЧЕНИЙ:
             toast = ToastNotification(
                 title="AU Browser. Некоторые лоты не отобразились",
                 message=message_text,

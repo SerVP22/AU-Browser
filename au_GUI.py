@@ -306,24 +306,24 @@ class AuCard():
 class AuBrowser(ttk_bs.Window):
 
 
-    def __init__(self, app, *args, **kwargs):
+    def __init__(self, *args, app, sh, ex,  **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.current_page = 1
         self.geometry("1000x800")
-        self.main_black_list_flag = IntVar(value=1)
+        self.exclude_lots_flag = IntVar(value=int(ex))
+        self.show_lots_flag = IntVar(value=int(sh))
         self.reload_app = app.start_app
         self.app = app
-        self.path_conf = CONFIG_FOLDER
-        self.file_conf_name = FILE_CNF
 
 
-        self.style1 = ttk.Style()
-        self.style1.configure("TCheckbutton", font=("Arial", 14, "normal"), background="darkgrey")
-        # print(self.style1.layout("TCheckbutton"))
-        new_style = [('Checkbutton.padding', {'sticky': 'nswe', 'children': [('Checkbutton.indicator', {'side': 'left', 'sticky': ''}), ('Checkbutton.focus', {'side': 'left', 'sticky': 'w', 'children': [('Checkbutton.label', {'sticky': 'nswe'})]})]})]
-        self.style1.layout(("TCheckbutton"), new_style)
+
+        # self.style1 = ttk.Style()
+        # self.style1.configure("TCheckbutton", font=("Arial", 14, "normal"), background="darkgrey")
+        # # print(self.style1.layout("TCheckbutton"))
+        # new_style = [('Checkbutton.padding', {'sticky': 'nswe', 'children': [('Checkbutton.indicator', {'side': 'left', 'sticky': ''}), ('Checkbutton.focus', {'side': 'left', 'sticky': 'w', 'children': [('Checkbutton.label', {'sticky': 'nswe'})]})]})]
+        # self.style1.layout(("TCheckbutton"), new_style)
         # self.style2 = ttk.Style(self)
         # self.style1.configure("TCheckbutton-mini", font=("Arial", 12, "normal"), background="white")
 
@@ -444,35 +444,64 @@ class AuBrowser(ttk_bs.Window):
                                         width=25)
         self.btn_update.pack(side=LEFT, pady=5, padx=25)
 
-        self.bl_lst_button = ttk.Checkbutton(self.top_frame,
-                                             text='Учитывать "Черный лист"',
-                                             variable=self.main_black_list_flag,
-                                             style="TCheckbutton",
-                                             command=self.check_btn_change,
-                                             offvalue=0,
-                                             onvalue=1,
-                                             padding=5
-                                             )
-        self.bl_lst_button.pack(side="left", expand=1, anchor=E)
+        # self.bl_lst_button = ttk.Checkbutton(self.top_frame,
+        #                                      text='Учитывать "Черный лист"',
+        #                                      variable=self.exclude_lots_flag,
+        #                                      style="TCheckbutton",
+        #                                      command=self.check_btn_change,
+        #                                      offvalue=0,
+        #                                      onvalue=1,
+        #                                      padding=5
+        #                                      )
+
+        self.show_msg_button = ttk_bs.Checkbutton(self.top_frame,
+                                                  text='Выводить сообщение',
+                                                  bootstyle="primary-square-toggle",
+                                                  padding=7,
+                                                  variable=self.show_lots_flag,
+                                                  command=self.check_btn_change,
+                                                  offvalue=0,
+                                                  onvalue=1,
+                                                  )
+        self.show_msg_button.pack(side="left", expand=1, anchor=E)
+        ToolTip(self.show_msg_button, "Показывать окно с исключёнными лотами", bootstyle="primary-inverse")
+
+        self.bl_lst_button = ttk_bs.Checkbutton(self.top_frame,
+                                                text='Исключать лоты',
+                                                bootstyle="primary-square-toggle",
+                                                padding=7,
+                                                variable=self.exclude_lots_flag,
+                                                command=self.check_btn_change,
+                                                offvalue=0,
+                                                onvalue=1,
+                                                )
+        self.bl_lst_button.pack(side="left", expand=0, anchor=E)
+        ToolTip(self.bl_lst_button, "Не отображать в списке лоты которые попали в исключения", bootstyle="primary-inverse")
+
+
         # self.bl_lst_button.invoke()
 
     def check_btn_change(self):
 
         def create_new_file_conf():
             with open(self.full_path_conf, "w") as f:
-                json.dump({MAIN_CHECK_BUTTON_KEY: self.main_black_list_flag.get()}, f)
+                json.dump({
+                           EXCLUDE_LOTS_KEY: self.exclude_lots_flag.get(),
+                           SHOW_EXCLUDED_LOTS_KEY: self.show_lots_flag.get()
+                          }, f)
             print("Создан файл конфигурации")
 
-        self.full_path_conf = os.path.join(self.path_conf, self.file_conf_name)
-
-        if not os.path.exists(self.path_conf):
-            os.mkdir(self.path_conf)
+        if not os.path.exists(CONFIG_FOLDER):
+            os.mkdir(CONFIG_FOLDER)
             create_new_file_conf()
+
+        self.full_path_conf = os.path.join(CONFIG_FOLDER, FILE_CNF)
 
         if os.path.exists(self.full_path_conf):
             with open(self.full_path_conf, "r") as f:
                 data = json.load(f)
-            data[MAIN_CHECK_BUTTON_KEY] = self.main_black_list_flag.get()
+            data[EXCLUDE_LOTS_KEY] = self.exclude_lots_flag.get()
+            data[SHOW_EXCLUDED_LOTS_KEY] = self.show_lots_flag.get()
             with open(self.full_path_conf, "w") as f:
                 json.dump(data, f)
             print("Файл конфигурации обновлён")

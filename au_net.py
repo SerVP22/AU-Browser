@@ -35,7 +35,7 @@ class AUNet():
         return BytesIO(img_data)
 
 
-    def load_au_page(page:int=1):
+    def load_au_page(page:int=1) -> list:
 
         headers = {
             'Accept': '*/*',
