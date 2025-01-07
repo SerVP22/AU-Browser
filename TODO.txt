@@ -25,3 +25,5 @@ EDIT валидация ввода
 GIT:
 H:\Coding\Python\Projects\!my_projects\internetParsing\AU
 git add au_browser.py au_GUI.py const.py au_net.py TODO.txt
+git commit -m "Подключены кнопки управления исключениями лотов"
+git push origin master

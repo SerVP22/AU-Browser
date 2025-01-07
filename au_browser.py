@@ -19,7 +19,7 @@ class AUApp():
                 print('[EXC ERROR]:', msg)
                 return False, False  # self.show_excluded_lots, self.exclude_lots
         else:
-            print("[Ошибка доступа к файлк конфигурации")
+            print("[Ошибка доступа к файлу конфигурации]")
             return False, False #self.show_excluded_lots, self.exclude_lots
 
     def start_app(self):

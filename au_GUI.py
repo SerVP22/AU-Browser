@@ -77,29 +77,31 @@ class AuCard():
 
         # FRAME
         self.image_area_frame = ttk_bs.Frame(self.card_frame)
-        self.image_area_frame.grid(row=1, column=0, columnspan=1, rowspan=3, padx=15, pady=5, sticky="ew")
+        self.image_area_frame.grid(row=1, column=0, columnspan=1, rowspan=3, padx=15, pady=5, sticky="n")
 
         # КНОПКА НАЗАД
-        self.arrow_back_button = ttk_bs.Button(self.image_area_frame,
-                                               text="<",
-                                               command=self.back_btn_press,
-                                               bootstyle="dark-outline", )
-        self.arrow_back_button.grid(row=1, column=0, columnspan=1, rowspan=3, sticky="ns")
+        if self.photos_count>1:
+            self.arrow_back_button = ttk_bs.Button(self.image_area_frame,
+                                                   text="<",
+                                                   command=self.back_btn_press,
+                                                   bootstyle="dark-outline", )
+            self.arrow_back_button.grid(row=1, column=0, columnspan=1, rowspan=3, sticky="ns")
 
         # РАЗМЕЩЕНИЕ ФОТОГРАФИИ
         self.image_label = ttk_bs.Label(self.image_area_frame,
                                         background="black",
                                         image=self.lot_photos[0],
-                                        borderwidth=1
+                                        borderwidth=1,
                                         )
-        self.image_label.grid(row=1, column=1, columnspan=10, rowspan=3)
+        self.image_label.grid(row=1, column=1, columnspan=10, rowspan=3,)
 
         # КНОПКА ВПЕРЁД
-        self.arrow_forward_button = ttk_bs.Button(self.image_area_frame,
-                                                  text=">",
-                                                  command=self.forward_btn_press,
-                                                  bootstyle="dark-outline")
-        self.arrow_forward_button.grid(row=1, column=11, columnspan=1, rowspan=3, sticky="ns")
+        if self.photos_count > 1:
+            self.arrow_forward_button = ttk_bs.Button(self.image_area_frame,
+                                                      text=">",
+                                                      command=self.forward_btn_press,
+                                                      bootstyle="dark-outline")
+            self.arrow_forward_button.grid(row=1, column=11, columnspan=1, rowspan=3, sticky="ns")
         ### КОНЕЦ ПАНЕЛЬ ИЗОБРАЖЕНИЯ И КНОПОК
 
         ### ПАНЕЛЬ ОПИСАНИЯ
