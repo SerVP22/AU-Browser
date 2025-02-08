@@ -48,7 +48,7 @@ class AuCard():
                                        cursor="hand2",
                                        text=self.lot_name,
                                        width=35,
-                                       background="white",
+                                       foreground="grey",
                                        font=('Arial', '18', 'bold'),)
         self.card_title.grid(row=0, column=0, columnspan=2, sticky="ew", padx=25)
         ToolTip(self.card_title, self.lot_name, bootstyle="info-inverse")
@@ -310,7 +310,7 @@ class AuBrowser(ttk_bs.Window):
 
     def __init__(self, *args, app, sh, ex, rl,  **kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, themename="darkly", **kwargs)
 
         self.current_page = 1
         self.geometry("1000x800")

@@ -9,7 +9,6 @@ class AUNet():
     @classmethod
     def _param_set(cls, value=False):
         cls.reload_photo_flag = value
-        print(value)
 
     def load_map(url):
 
