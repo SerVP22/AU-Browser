@@ -14,17 +14,18 @@ class AUApp():
             with open(self.full_path_conf, "r") as f:
                 data = json.load(f)
             try:
-                return data[SHOW_EXCLUDED_LOTS_KEY], data[EXCLUDE_LOTS_KEY]
+                return data[SHOW_EXCLUDED_LOTS_KEY], data[EXCLUDE_LOTS_KEY], data[RELOAD_PHOTOS_KEY]
             except Exception as msg:
                 print('[EXC ERROR]:', msg)
-                return False, False  # self.show_excluded_lots, self.exclude_lots
+                return False, False, False  # self.show_excluded_lots, self.exclude_lots
         else:
             print("[Ошибка доступа к файлу конфигурации]")
-            return False, False #self.show_excluded_lots, self.exclude_lots
+            return False, False, False #self.show_excluded_lots, self.exclude_lots
 
     def start_app(self):
 
-        self.show_excluded_lots, self.exclude_lots = self.load_and_return_config()
+        self.show_excluded_lots, self.exclude_lots, self.reload_photos = self.load_and_return_config()
+        AUNet._param_set(bool(self.reload_photos))
 
         self.app_bl_list_cats = self.app_bl_list_lots = None
 
@@ -42,7 +43,11 @@ class AUApp():
 
         # СОЗДАЁМ ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ
         if self.first_start:
-            self.app = AuBrowser(app=self, title="AU Browser", sh=self.show_excluded_lots, ex=self.exclude_lots)  # themename="morph"
+            self.app = AuBrowser(app=self,
+                                 title="AU Browser",
+                                 sh=self.show_excluded_lots,
+                                 ex=self.exclude_lots,
+                                 rl=self.reload_photos)  # themename="morph"
 
         self.app.title("AU Browser [ЗАГРУЗКА...]")
 

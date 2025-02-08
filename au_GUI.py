@@ -40,7 +40,7 @@ class AuCard():
         self.path_lot_BL = path_lot_BL
 
         # ПАНЕЛЬ С РАМКОЙ ДЛЯ ЛОТА
-        name_text = f" Позиция на странице: {self.lot_position} / Вопросов: {self.lot_comment_count} / Фотографий: {self.photos_count} "
+        name_text = f" id: {self.lot_id} / Позиция на странице: {self.lot_position} / Вопросов: {self.lot_comment_count} / Фотографий: {self.photos_count} "
         self.card_frame = ttk_bs.LabelFrame(parent_frame, text=name_text, bootstyle="primary")
 
         # НАЗВАНИЕ ЛОТА
@@ -308,7 +308,7 @@ class AuCard():
 class AuBrowser(ttk_bs.Window):
 
 
-    def __init__(self, *args, app, sh, ex,  **kwargs):
+    def __init__(self, *args, app, sh, ex, rl,  **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -316,6 +316,7 @@ class AuBrowser(ttk_bs.Window):
         self.geometry("1000x800")
         self.exclude_lots_flag = IntVar(value=int(ex))
         self.show_lots_flag = IntVar(value=int(sh))
+        self.reload_photos_flag = IntVar(value=int(rl))
         self.reload_app = app.start_app
         self.app = app
 
@@ -468,6 +469,19 @@ class AuBrowser(ttk_bs.Window):
         self.show_msg_button.pack(side="left", expand=1, anchor=E)
         ToolTip(self.show_msg_button, "Показывать окно с исключёнными лотами", bootstyle="primary-inverse")
 
+        self.reload_photos_button = ttk_bs.Checkbutton(self.top_frame,
+                                                text='Перезаружать фото',
+                                                bootstyle="primary-square-toggle",
+                                                padding=7,
+                                                variable=self.reload_photos_flag,
+                                                command=self.check_btn_change,
+                                                offvalue=0,
+                                                onvalue=1,
+                                                )
+        self.reload_photos_button.pack(side="left", expand=0, anchor=E)
+        ToolTip(self.reload_photos_button, "Перезагружать фотографии лотов",
+                bootstyle="primary-inverse")
+
         self.bl_lst_button = ttk_bs.Checkbutton(self.top_frame,
                                                 text='Исключать лоты',
                                                 bootstyle="primary-square-toggle",
@@ -489,7 +503,8 @@ class AuBrowser(ttk_bs.Window):
             with open(self.full_path_conf, "w") as f:
                 json.dump({
                            EXCLUDE_LOTS_KEY: self.exclude_lots_flag.get(),
-                           SHOW_EXCLUDED_LOTS_KEY: self.show_lots_flag.get()
+                           SHOW_EXCLUDED_LOTS_KEY: self.show_lots_flag.get(),
+                           RELOAD_PHOTOS_KEY: self.reload_photos_flag.get()
                           }, f)
             print("Создан файл конфигурации")
 
@@ -504,6 +519,7 @@ class AuBrowser(ttk_bs.Window):
                 data = json.load(f)
             data[EXCLUDE_LOTS_KEY] = self.exclude_lots_flag.get()
             data[SHOW_EXCLUDED_LOTS_KEY] = self.show_lots_flag.get()
+            data[RELOAD_PHOTOS_KEY] = self.reload_photos_flag.get()
             with open(self.full_path_conf, "w") as f:
                 json.dump(data, f)
             print("Файл конфигурации обновлён")

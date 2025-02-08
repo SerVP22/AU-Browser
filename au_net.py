@@ -6,6 +6,11 @@ from bs4 import BeautifulSoup
 
 class AUNet():
 
+    @classmethod
+    def _param_set(cls, value=False):
+        cls.reload_photo_flag = value
+        print(value)
+
     def load_map(url):
 
         headers = {
@@ -165,6 +170,12 @@ class AUNet():
             with open(f"{full_path}", "wb+") as f:
                 f.write(response.content)
 
+        dir_path = os.path.join(path, lot_id)
+        full_path = os.path.join(dir_path, name)
+
+        if not AUNet.reload_photo_flag and os.path.exists(full_path):  # файл уже скачан
+            # print("Файл уже скачан: ", full_path)
+            return full_path
 
         headers = {
             'Accept': '*/*',
@@ -179,13 +190,6 @@ class AUNet():
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
         }
-
-        dir_path = os.path.join(path, lot_id)
-        full_path = os.path.join(dir_path, name)
-
-        if os.path.exists(full_path): # файл уже скачан
-            # print("Файл уже скачан: ", full_path)
-            return full_path
 
         try:
             response = requests.get(url, headers=headers)
